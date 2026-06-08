@@ -1,0 +1,61 @@
+openapi: 3.1.0
+info:
+  title: dietarysupplement.ai Scoring API
+  description: Deterministic scoring of a dietary supplement on formula, quality, and safety.
+  version: "1.0.0"
+servers:
+  - url: https://YOUR-DEPLOYED-HOST.example.com
+paths:
+  /score:
+    post:
+      operationId: scoreSupplement
+      summary: Score a dietary supplement product.
+      description: Returns deterministic formula/quality/safety/overall scores with rationale, flags, and coverage.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        "200":
+          description: Score result
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  schemas:
+    Product:
+      type: object
+      required: [ingredients]
+      properties:
+        name:
+          type: string
+        brand:
+          type: string
+        pregnant:
+          type: boolean
+          description: Apply pregnancy-caution adjustment.
+        certifications:
+          type: array
+          items:
+            type: string
+          description: e.g. GMP, third_party_tested, NSF, USP, informed_sport, non_gmo
+        ingredients:
+          type: array
+          items:
+            type: object
+            required: [nutrient, amount]
+            properties:
+              name:
+                type: string
+              nutrient:
+                type: string
+                description: one of iron, folate, vitamin_d, vitamin_b12, vitamin_b6, vitamin_c, vitamin_e, vitamin_a, vitamin_k, calcium, magnesium, zinc, iodine, choline, omega3_epa_dha, melatonin, creatine, coq10, ashwagandha, collagen
+              form:
+                type: string
+              amount:
+                type: number
+              unit:
+                type: string

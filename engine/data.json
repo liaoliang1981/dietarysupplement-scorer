@@ -1,0 +1,38 @@
+{
+  "_note": "v0 INTERNATIONAL BASELINE reference values. These are hand-curated illustrative figures, NOT authoritative. RDA/UL and permitted claims vary by country (US/EU/CN/TH/JP/BR differ). Before any production or consumer-facing use, every value must be reviewed by a qualified professional and ideally sourced to a citable authority (e.g. NIH ODS, EFSA, national DRIs) per target market.",
+  "config": {
+    "weights": {"formula": 0.45, "quality": 0.25, "safety": 0.30},
+    "quality_base": 45,
+    "cert_points": {"gmp": 12, "third_party_tested": 18, "nsf": 16, "usp": 16, "informed_sport": 10, "non_gmo": 4},
+    "bioavailable_bonus_per": 4,
+    "bioavailable_bonus_max": 15,
+    "form_bonus": 8,
+    "form_penalty": 10,
+    "fairy_dust_points": 20,
+    "below_range_points": 55,
+    "in_range_points": 100,
+    "above_range_points": 80
+  },
+  "nutrients": {
+    "iron": {"unit": "mg", "ul": 45, "eff": [14, 65], "good": ["bisglycinate", "fumarate"], "poor": ["sulfate"], "pregnancy": "caution_high_dose", "source": "NIH ODS (baseline, US)"},
+    "folate": {"unit": "mcg", "ul": 1000, "eff": [400, 800], "good": ["l-5-mthf", "l-methylfolate", "5-mthf"], "poor": ["folic acid"], "pregnancy": "recommended", "source": "NIH ODS (baseline, US)"},
+    "vitamin_d": {"unit": "iu", "ul": 4000, "eff": [1000, 4000], "good": ["d3", "cholecalciferol"], "poor": ["d2", "ergocalciferol"], "source": "NIH ODS (baseline, US)"},
+    "vitamin_b12": {"unit": "mcg", "ul": null, "eff": [2.4, 1000], "good": ["methylcobalamin", "adenosylcobalamin"], "poor": ["cyanocobalamin"], "source": "NIH ODS (baseline, US)"},
+    "vitamin_b6": {"unit": "mg", "ul": 100, "eff": [1.3, 50], "good": ["p-5-p", "pyridoxal-5-phosphate"], "poor": ["pyridoxine hcl"], "source": "NIH ODS (baseline, US)"},
+    "vitamin_c": {"unit": "mg", "ul": 2000, "eff": [75, 500], "good": [], "poor": [], "source": "NIH ODS (baseline, US)"},
+    "vitamin_e": {"unit": "mg", "ul": 1000, "eff": [15, 268], "good": ["d-alpha", "mixed tocopherol"], "poor": ["dl-alpha"], "source": "NIH ODS (baseline, US)"},
+    "vitamin_a": {"unit": "mcg", "ul": 3000, "eff": [700, 3000], "good": [], "poor": [], "source": "NIH ODS (baseline, US, preformed retinol)"},
+    "vitamin_k": {"unit": "mcg", "ul": null, "eff": [90, 180], "good": ["mk-7", "mk-4"], "poor": [], "source": "baseline"},
+    "calcium": {"unit": "mg", "ul": 2500, "eff": [500, 1200], "good": ["citrate", "malate"], "poor": ["carbonate"], "source": "NIH ODS (baseline, US)"},
+    "magnesium": {"unit": "mg", "ul": 350, "eff": [200, 400], "good": ["glycinate", "citrate", "malate"], "poor": ["oxide"], "source": "NIH ODS (baseline, US, supplemental UL)"},
+    "zinc": {"unit": "mg", "ul": 40, "eff": [8, 25], "good": ["bisglycinate", "picolinate"], "poor": ["oxide"], "source": "NIH ODS (baseline, US)"},
+    "iodine": {"unit": "mcg", "ul": 1100, "eff": [150, 220], "good": [], "poor": [], "source": "NIH ODS (baseline, US)"},
+    "choline": {"unit": "mg", "ul": 3500, "eff": [300, 550], "good": [], "poor": [], "source": "NIH ODS (baseline, US)"},
+    "omega3_epa_dha": {"unit": "mg", "ul": null, "eff": [250, 2000], "good": ["triglyceride", "rtg"], "poor": ["ethyl ester"], "source": "baseline"},
+    "melatonin": {"unit": "mg", "ul": null, "eff": [0.5, 5], "good": [], "poor": [], "source": "baseline (sleep onset)"},
+    "creatine": {"unit": "g", "ul": null, "eff": [3, 5], "good": ["monohydrate"], "poor": ["hcl", "ethyl ester"], "source": "baseline (maintenance)"},
+    "coq10": {"unit": "mg", "ul": null, "eff": [100, 200], "good": ["ubiquinol"], "poor": [], "source": "baseline"},
+    "ashwagandha": {"unit": "mg", "ul": null, "eff": [300, 600], "good": ["ksm-66", "sensoril"], "poor": [], "source": "baseline (standardized extract)"},
+    "collagen": {"unit": "g", "ul": null, "eff": [2.5, 15], "good": [], "poor": [], "source": "baseline"}
+  }
+}

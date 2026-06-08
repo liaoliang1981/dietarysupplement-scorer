@@ -1,0 +1,47 @@
+# dietarysupplement.ai supplement scorer — monorepo
+
+一套**确定性补剂打分能力**,通过三个调用层交付:Claude Skill、ChatGPT、浏览器内 agent。
+全品类、不分品牌、面向全球。打分跑确定性引擎(不靠模型猜),模型只负责对话与解释。
+
+## 单一真相源(重点)
+
+**只改 `engine/`,然后 `python build.py` 同步到所有层。** 别手改任何"生成的"文件。
+
+```
+engine/
+├── data.json          ← 唯一数据源:参考表 + 权重(改这里)
+├── score.py           ← 唯一算法(改这里)
+└── test_engine.py     ← 断言测试
+build.py               ← 同步器:把 engine 推到下面三层
+claude-skill/
+└── supplement-scorer/ ← Claude Skill(SKILL.md + 生成的 scripts/score.py + references/)
+chatgpt/
+├── score.py           ← 生成:自包含(数据内嵌,供 Code Interpreter)
+├── gpt-instructions.md, openapi.yaml, server.py, dev-doc.md
+web/
+└── index.html         ← 浏览器 agent(CFG+REFERENCE 数据块由 build.py 生成)
+```
+
+改完跑:
+
+```bash
+python build.py          # 同步四处
+python engine/test_engine.py   # 断言测试(7/7)
+```
+
+> 校验:同一份"优质铁剂"在 engine 测试、chatgpt/score.py、claude-skill、web 四处都得 **97**。改了 `engine/data.json` 的权重或剂量区间,build 后四处一起变。
+
+## 各层怎么用
+
+- **Claude Skill** —— 打包 `claude-skill/supplement-scorer/` 上传到 Claude.ai(Settings → Capabilities → Skills),或放进 Claude Code 的 skills 目录。
+- **ChatGPT** —— 按 `chatgpt/dev-doc.md`:Custom GPT 传 `chatgpt/score.py` + 开 Code Interpreter + 粘 `gpt-instructions.md`;要稳就用 `server.py` + `openapi.yaml` 做 Action;接自家产品用 Responses API。
+- **Web** —— `web/index.html` 是浏览器内的交互式 agent(在 Claude.ai artifact 环境直接跑;独立部署需后端代理保管模型 API key)。
+
+## 注意
+
+- `engine/data.json` 的参考值是 **v0 国际基线、手工录入、非权威**;各国 RDA/UL 与可声称项不同,上线前需专业人士复核并按市场挂来源。
+- 安全扣分常数(25/15)在引擎算法里写死(算法常数,非数据)。
+- Web 是 JS、其它是 Python:`build.py` 同步的是**数据**(从 `data.json`);两边的算法各自维护、保持镜像。改算法逻辑时记得两处都改。
+
+## License
+MIT

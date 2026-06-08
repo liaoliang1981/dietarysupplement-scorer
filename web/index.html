@@ -1,0 +1,239 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dietarysupplement.ai — 补剂评测顾问</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Noto+Sans+SC:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bone:#F4F1EA; --paper:#FBFAF6; --ink:#20302A; --muted:#6B7A72; --faint:#9AA59E;
+    --sage:#3E6B57; --sage-d:#2C5142; --sage-soft:#E7EEE9;
+    --clay:#BC6B4D; --clay-soft:#F3E6DF; --amber:#C28A2C; --low:#B5564B;
+    --line:#E4DECF; --line-soft:#EDE8DC;
+    --disp:'Fraunces',Georgia,serif; --body:'Noto Sans SC',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bone);color:var(--ink);font-family:var(--body);font-weight:400;
+    background-image:radial-gradient(circle at 1px 1px,rgba(62,107,87,.04) 1px,transparent 0);background-size:22px 22px;}
+  .app{max-width:780px;margin:0 auto;height:100dvh;display:flex;flex-direction:column}
+  header{padding:20px 24px 16px;border-bottom:1px solid var(--line);display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
+  .wm{font-family:var(--disp);font-weight:500;font-size:25px;letter-spacing:-.01em;line-height:1}
+  .wm .dot{color:var(--clay)}
+  .sub{font-size:12.5px;color:var(--muted);margin-top:6px;letter-spacing:.02em}
+  .pill{font-family:var(--mono);font-size:11px;color:var(--sage-d);background:var(--sage-soft);
+    border:1px solid #cfe0d6;padding:5px 10px;border-radius:999px;white-space:nowrap;display:flex;align-items:center;gap:6px}
+  .pill i{width:6px;height:6px;border-radius:50%;background:var(--sage);box-shadow:0 0 0 3px rgba(62,107,87,.18)}
+  #messages{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth}
+  .row{display:flex;animation:rise .45s cubic-bezier(.2,.7,.2,1) both}
+  .row.user{justify-content:flex-end}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .bubble{max-width:82%;padding:13px 16px;border-radius:16px;font-size:15px;line-height:1.65;white-space:pre-wrap}
+  .row.bot .bubble{background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .row.user .bubble{background:var(--sage-d);color:#F4F1EA;border-bottom-right-radius:5px}
+  .row.bot .bubble strong{font-weight:500}
+  .card{max-width:88%;background:var(--paper);border:1px solid var(--line);border-radius:16px;border-bottom-left-radius:5px;
+    padding:16px 18px 14px;animation:rise .45s cubic-bezier(.2,.7,.2,1) both}
+  .card .top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+  .card .nm{font-size:14px;font-weight:500;line-height:1.3}
+  .card .br{font-size:11.5px;color:var(--faint);margin-top:3px}
+  .ov{text-align:center;flex-shrink:0}
+  .ov .n{font-family:var(--disp);font-weight:600;font-size:38px;line-height:.9}
+  .ov .l{font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:.14em;margin-top:3px}
+  .bars{display:flex;flex-direction:column;gap:9px}
+  .bar{display:grid;grid-template-columns:38px 1fr 30px;align-items:center;gap:10px}
+  .bar .bl{font-size:12px;color:var(--muted)}
+  .bar .tk{height:7px;background:var(--line-soft);border-radius:4px;overflow:hidden}
+  .bar .fl{height:100%;border-radius:4px;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+  .bar .bv{font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink)}
+  .flags{margin-top:13px;display:flex;flex-wrap:wrap;gap:6px}
+  .flag{font-size:11.5px;color:#7c3b33;background:var(--clay-soft);border:1px solid #e7cdc1;
+    padding:4px 9px;border-radius:8px;display:flex;align-items:center;gap:6px}
+  .flag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--clay)}
+  .cover{margin-top:11px;font-size:11.5px;color:var(--sage-d);background:var(--sage-soft);
+    border:1px solid #cfe0d6;padding:6px 10px;border-radius:8px;line-height:1.55}
+  .meta{margin-top:12px;font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.03em}
+  .typing{display:flex;gap:5px;padding:15px 16px;background:var(--paper);border:1px solid var(--line);border-radius:16px;border-bottom-left-radius:5px;width:fit-content}
+  .typing span{width:7px;height:7px;border-radius:50%;background:var(--faint);animation:bob 1.2s infinite}
+  .typing span:nth-child(2){animation-delay:.18s}.typing span:nth-child(3){animation-delay:.36s}
+  @keyframes bob{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;padding:0 24px 14px}
+  .chip{font-size:13px;color:var(--sage-d);background:transparent;border:1px solid #cfe0d6;
+    padding:8px 13px;border-radius:999px;cursor:pointer;transition:.18s;font-family:var(--body)}
+  .chip:hover{background:var(--sage-soft);border-color:var(--sage)}
+  .dock{padding:14px 24px 10px;border-top:1px solid var(--line)}
+  .field{display:flex;gap:10px;align-items:flex-end;background:var(--paper);border:1px solid var(--line);
+    border-radius:16px;padding:8px;transition:.2s}
+  .field:focus-within{border-color:var(--sage);box-shadow:0 0 0 3px rgba(62,107,87,.1)}
+  textarea{flex:1;border:0;outline:0;resize:none;background:transparent;font-family:var(--body);font-size:15px;
+    color:var(--ink);line-height:1.5;max-height:120px;padding:5px 0}
+  .send{flex-shrink:0;width:40px;height:40px;border-radius:12px;border:0;background:var(--sage);color:#F4F1EA;
+    cursor:pointer;font-size:18px;transition:.18s;display:flex;align-items:center;justify-content:center}
+  .send:hover{background:var(--sage-d)} .send:disabled{opacity:.4;cursor:default}
+  .cam{flex-shrink:0;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--paper);
+    color:var(--sage-d);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.18s}
+  .cam:hover{background:var(--sage-soft);border-color:var(--sage)} .cam:disabled{opacity:.4;cursor:default}
+  .cam svg{width:20px;height:20px}
+  .row.user .bubble img{display:block;max-width:240px;width:100%;border-radius:10px}
+  .disc{text-align:center;font-size:11px;color:var(--faint);padding:8px 24px 12px;line-height:1.5}
+</style>
+
+<div class="app">
+  <header>
+    <div>
+      <div class="wm">dietarysupplement<span class="dot">.</span>ai</div>
+      <div class="sub">循证补剂评测 · 面向全球 · 全品类 · 不偏品牌</div>
+    </div>
+    <div class="pill"><i></i>打分引擎 · 在线</div>
+  </header>
+  <div id="messages"></div>
+  <div class="chips" id="chips"></div>
+  <div class="dock">
+    <div class="field">
+      <button class="cam" id="cam" aria-label="拍照或上传产品标签"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5a2 2 0 0 1 2-2h2L8.2 4.9a1 1 0 0 1 .82-.43h5.96a1 1 0 0 1 .82.43L17 6.5h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.8" r="3.3"/></svg></button>
+      <textarea id="ta" rows="1" placeholder="问我任何补剂，贴一个配方，或拍张产品照片…"></textarea>
+      <button class="send" id="send" aria-label="发送">↑</button>
+    </div>
+    <input type="file" id="file" accept="image/*" capture="environment" hidden>
+  </div>
+  <div class="disc">一般健康信息，非医疗建议。打分基于通用国际参考值，各国监管与可售性不同，请以当地法规为准。开始任何补充剂前请咨询专业人士。</div>
+</div>
+
+<script>
+/* === GENERATED:DATA START — do not edit, run build.py === */
+const CFG={"weights": {"formula": 0.45, "quality": 0.25, "safety": 0.3}, "quality_base": 45, "cert_points": {"gmp": 12, "third_party_tested": 18, "nsf": 16, "usp": 16, "informed_sport": 10, "non_gmo": 4}, "bioavailable_bonus_per": 4, "bioavailable_bonus_max": 15, "form_bonus": 8, "form_penalty": 10, "fairy_dust_points": 20, "below_range_points": 55, "in_range_points": 100, "above_range_points": 80};
+const REFERENCE={"iron": {"unit": "mg", "ul": 45, "eff": [14, 65], "good": ["bisglycinate", "fumarate"], "poor": ["sulfate"], "pregnancy": "caution_high_dose", "source": "NIH ODS (baseline, US)"}, "folate": {"unit": "mcg", "ul": 1000, "eff": [400, 800], "good": ["l-5-mthf", "l-methylfolate", "5-mthf"], "poor": ["folic acid"], "pregnancy": "recommended", "source": "NIH ODS (baseline, US)"}, "vitamin_d": {"unit": "iu", "ul": 4000, "eff": [1000, 4000], "good": ["d3", "cholecalciferol"], "poor": ["d2", "ergocalciferol"], "source": "NIH ODS (baseline, US)"}, "vitamin_b12": {"unit": "mcg", "ul": null, "eff": [2.4, 1000], "good": ["methylcobalamin", "adenosylcobalamin"], "poor": ["cyanocobalamin"], "source": "NIH ODS (baseline, US)"}, "vitamin_b6": {"unit": "mg", "ul": 100, "eff": [1.3, 50], "good": ["p-5-p", "pyridoxal-5-phosphate"], "poor": ["pyridoxine hcl"], "source": "NIH ODS (baseline, US)"}, "vitamin_c": {"unit": "mg", "ul": 2000, "eff": [75, 500], "good": [], "poor": [], "source": "NIH ODS (baseline, US)"}, "vitamin_e": {"unit": "mg", "ul": 1000, "eff": [15, 268], "good": ["d-alpha", "mixed tocopherol"], "poor": ["dl-alpha"], "source": "NIH ODS (baseline, US)"}, "vitamin_a": {"unit": "mcg", "ul": 3000, "eff": [700, 3000], "good": [], "poor": [], "source": "NIH ODS (baseline, US, preformed retinol)"}, "vitamin_k": {"unit": "mcg", "ul": null, "eff": [90, 180], "good": ["mk-7", "mk-4"], "poor": [], "source": "baseline"}, "calcium": {"unit": "mg", "ul": 2500, "eff": [500, 1200], "good": ["citrate", "malate"], "poor": ["carbonate"], "source": "NIH ODS (baseline, US)"}, "magnesium": {"unit": "mg", "ul": 350, "eff": [200, 400], "good": ["glycinate", "citrate", "malate"], "poor": ["oxide"], "source": "NIH ODS (baseline, US, supplemental UL)"}, "zinc": {"unit": "mg", "ul": 40, "eff": [8, 25], "good": ["bisglycinate", "picolinate"], "poor": ["oxide"], "source": "NIH ODS (baseline, US)"}, "iodine": {"unit": "mcg", "ul": 1100, "eff": [150, 220], "good": [], "poor": [], "source": "NIH ODS (baseline, US)"}, "choline": {"unit": "mg", "ul": 3500, "eff": [300, 550], "good": [], "poor": [], "source": "NIH ODS (baseline, US)"}, "omega3_epa_dha": {"unit": "mg", "ul": null, "eff": [250, 2000], "good": ["triglyceride", "rtg"], "poor": ["ethyl ester"], "source": "baseline"}, "melatonin": {"unit": "mg", "ul": null, "eff": [0.5, 5], "good": [], "poor": [], "source": "baseline (sleep onset)"}, "creatine": {"unit": "g", "ul": null, "eff": [3, 5], "good": ["monohydrate"], "poor": ["hcl", "ethyl ester"], "source": "baseline (maintenance)"}, "coq10": {"unit": "mg", "ul": null, "eff": [100, 200], "good": ["ubiquinol"], "poor": [], "source": "baseline"}, "ashwagandha": {"unit": "mg", "ul": null, "eff": [300, 600], "good": ["ksm-66", "sensoril"], "poor": [], "source": "baseline (standardized extract)"}, "collagen": {"unit": "g", "ul": null, "eff": [2.5, 15], "good": [], "poor": [], "source": "baseline"}};
+/* === GENERATED:DATA END === */
+const clamp=v=>Math.round(Math.max(0,Math.min(100,v)));
+function scoreProduct(p,preg=false){
+ const ings=p.ingredients||[];let n=0,e=0;const unknown=[],flags=[];
+ for(const i of ings){const r=REFERENCE[(i.nutrient||"").toLowerCase()];if(!r){unknown.push(i.name||i.nutrient);continue;}
+  n++;const a=+i.amount||0,f=(i.form||"").toLowerCase(),[lo,hi]=r.eff;let pt=0;
+  if(a<lo*0.5){pt=CFG.fairy_dust_points;flags.push(`${i.name||i.nutrient} 剂量偏低 (${a}${r.unit})`);}
+  else if(a<lo)pt=CFG.below_range_points;else if(a<=hi)pt=CFG.in_range_points;else pt=CFG.above_range_points;
+  if(r.good.some(g=>f.includes(g)))pt=Math.min(100,pt+CFG.form_bonus);else if(r.poor.some(x=>f.includes(x)))pt=Math.max(0,pt-CFG.form_penalty);
+  e+=pt;}
+ const formula=n?clamp(e/n):0;
+ let b=CFG.quality_base,bio=0;
+ for(const c of(p.certifications||[])){const k=c.toLowerCase().replace(/ /g,"_");if(CFG.cert_points[k])b+=CFG.cert_points[k];}
+ for(const i of ings){const r=REFERENCE[(i.nutrient||"").toLowerCase()],f=(i.form||"").toLowerCase();if(r&&r.good.some(g=>f.includes(g)))bio++;}
+ if(bio)b+=Math.min(CFG.bioavailable_bonus_max,bio*CFG.bioavailable_bonus_per);const quality=clamp(b);
+ let s=100;
+ for(const i of ings){const r=REFERENCE[(i.nutrient||"").toLowerCase()];if(!r)continue;const a=+i.amount||0;
+  if(r.ul&&a>r.ul){s-=a>r.ul*1.5?25:15;flags.push(`${i.name||i.nutrient} ${a}${r.unit} 超过可耐受上限`);}
+  if(preg&&r.pregnancy==="caution_high_dose"&&r.ul&&a>r.ul*0.8)s-=10;}
+ const safety=clamp(s);
+ return{formula,quality,safety,overall:clamp(CFG.weights.formula*formula+CFG.weights.quality*quality+CFG.weights.safety*safety),flags,unknown,coverage:n+"/"+(n+unknown.length)};
+}
+
+const CATALOG=[
+ {id:"misspep-gentle-iron",brand:"Miss Pep",name:"Gentle Iron + Folate 补铁",cat:"补铁",certifications:["GMP","third_party_tested"],ingredients:[{name:"铁",nutrient:"iron",form:"ferrous bisglycinate",amount:18,unit:"mg"},{name:"叶酸",nutrient:"folate",form:"L-5-MTHF",amount:400,unit:"mcg"},{name:"维生素C",nutrient:"vitamin_c",form:"ascorbic acid",amount:80,unit:"mg"},{name:"维生素B12",nutrient:"vitamin_b12",form:"methylcobalamin",amount:2.4,unit:"mcg"}]},
+ {id:"valuebrand-multi",brand:"ValueBrand",name:"One-A-Day 多维片",cat:"综合维矿",certifications:[],ingredients:[{name:"铁",nutrient:"iron",form:"ferrous sulfate",amount:8,unit:"mg"},{name:"叶酸",nutrient:"folate",form:"folic acid",amount:200,unit:"mcg"},{name:"维生素D2",nutrient:"vitamin_d",form:"ergocalciferol",amount:400,unit:"iu"},{name:"镁",nutrient:"magnesium",form:"magnesium oxide",amount:50,unit:"mg"},{name:"钙",nutrient:"calcium",form:"carbonate",amount:200,unit:"mg"}]},
+ {id:"peakform-creatine",brand:"PeakForm",name:"Creatine Monohydrate 肌酸",cat:"运动",certifications:["third_party_tested","informed_sport"],ingredients:[{name:"肌酸",nutrient:"creatine",form:"monohydrate",amount:5,unit:"g"}]},
+ {id:"dreamwell-melatonin",brand:"DreamWell",name:"Sleep Melatonin 睡眠",cat:"睡眠",certifications:["GMP"],ingredients:[{name:"褪黑素",nutrient:"melatonin",form:"",amount:10,unit:"mg"},{name:"维生素B6",nutrient:"vitamin_b6",form:"P-5-P",amount:25,unit:"mg"},{name:"镁",nutrient:"magnesium",form:"glycinate",amount:150,unit:"mg"}]},
+ {id:"nordvit-magnesium",brand:"NordVit",name:"Magnesium Glycinate 镁",cat:"矿物质 / 放松",certifications:["GMP","third_party_tested"],ingredients:[{name:"镁",nutrient:"magnesium",form:"glycinate",amount:300,unit:"mg"}]},
+ {id:"zenroot-ashwa",brand:"ZenRoot",name:"Ashwagandha + Rhodiola 压力舒缓",cat:"草本 / 压力",certifications:["GMP"],ingredients:[{name:"南非醉茄",nutrient:"ashwagandha",form:"KSM-66 extract",amount:600,unit:"mg"},{name:"红景天",nutrient:"rhodiola",form:"3% rosavins",amount:200,unit:"mg"}]}
+];
+const SCORED={};CATALOG.forEach(p=>SCORED[p.id]=scoreProduct(p));
+
+const INTERACTIONS=[
+ "铁 + 钙：钙降低铁吸收，间隔约 2 小时。",
+ "铁 + 维生素C：维C 促进铁吸收（有益）。",
+ "铁/钙 + 左甲状腺素(levothyroxine)：影响甲状腺药吸收，间隔约 4 小时。",
+ "镁/钙 + 喹诺酮或四环素类抗生素：相互结合，间隔 2–6 小时。",
+ "高剂量锌 + 铁：竞争吸收，分开服用；长期高锌会耗竭铜。",
+ "维生素K + 华法林(warfarin)：拮抗，切勿自行改变摄入。",
+ "圣约翰草：诱导 CYP 酶，可削弱口服避孕药、华法林、SSRI 等。"
+];
+
+const NUTRIENT_KEYS=Object.keys(REFERENCE).join(", ");
+function catalogText(){return CATALOG.map(p=>{const s=SCORED[p.id];const ing=p.ingredients.map(i=>`${i.name} ${i.amount}${i.unit}(${i.form||"未注明"}）`).join("、");return `• id=${p.id} | ${p.brand} | ${p.name} | 类别：${p.cat} | 认证：${p.certifications.join("/")||"无"} | 成分：${ing} | 引擎分：配方${s.formula} 质量${s.quality} 安全${s.safety} 综合${s.overall} | 覆盖${s.coverage}${s.unknown.length?" 未收录:"+s.unknown.join("、"):""}${s.flags.length?" | 风险:"+s.flags.join("；"):""}`;}).join("\n");}
+
+const SYSTEM=`你是 dietarysupplement.ai 的补剂评测顾问，面向全球所有国家与市场的用户（不限性别、不限女性、不限国家），用用户自己的语言回答（中、英、葡、泰、西、日、阿等都行）。覆盖所有品类的膳食补充剂（综合维矿、补铁、睡眠、运动、骨骼、压力舒缓、草本、男性健康等），对所有品牌一视同仁。你的立场是独立中立：只按数据打分，绝不偏向任何品牌——包括 Miss Pep；数据如此就如实打低或指出问题。你像一位懂证据的营养顾问，不是推销员。
+
+【各国差异 — 重要】不同国家对补剂的监管、允许的功效声称、可售成分、以及参考摄入量(RDA/UL)都不一样。引擎用的是通用国际基线。若用户说了所在国家/市场，就据此调整可售性与措辞；不确定时按最保守口径，并主动说明"各国规定不同、参考值为国际基线、当地可能有差异，具体请以当地法规为准"。绝不假装某个声称在所有国家都合规。
+
+【商品库（含引擎预先算好的分数，必须直接引用这些数字，绝不自己编分数）】
+${catalogText()}
+
+【相互作用规则（只用这些，别编）】
+${INTERACTIONS.map(x=>"• "+x).join("\n")}
+
+【展示规则 — 很重要】
+- 当你要讲某个商品库产品的分数时，先单独一行输出标记 [[card:产品id]]（每个产品一行），应用会渲染可视化评分卡，然后你再用文字解释为什么这么打。
+- 如果某产品有"未收录"成分（覆盖比例 < 全部），你必须诚实说明：评分只覆盖了部分成分，未收录的成分本引擎暂不下结论——别假装满分代表全部。
+- 如果用户描述了他自己的配方（成分+剂量，不在商品库里），只输出这一行、不要任何其它文字：[[score:{"name":"名称","ingredients":[{"nutrient":"键","form":"形式","amount":数字,"unit":"单位"}],"certifications":[]}]]。可用的 nutrient 键只有：${NUTRIENT_KEYS}。无法对应的成分照填名字（form/amount 可省），引擎会标为未收录。应用会算出真实分数再请你解释。
+
+【照片识别】如果用户发来一张产品照片：尽量从标签/营养成分表读出品牌、名称、认证，以及每个成分的剂量与形式，然后只输出一行 [[score:{...}]]（规则同上面的自定义配方，nutrient 键同上）。读不准的剂量就估读、并在之后的解释里说明是估读。如果照片不是补剂标签、或看不清，别打分——用文字请用户把营养成分表拍清楚再来。
+
+【硬边界】
+- 你不是医生，不诊断、不治疗、不预防疾病，绝不声称补剂能做这些。
+- 不让人开始/停止/更改处方药。遇到疑似症状或孕期并发症，建议看专业医生。
+- 只用结构功能性表述（"支持""有助于维持"），绝不用疾病声称（"治疗""治愈""预防某病"）。
+- 区分"证据较强""初步""仅营销说法"。证据弱就直说。
+
+【风格】用用户的语言回答，简洁、具体，先给结论。`;
+
+const msgs=document.getElementById("messages"),chips=document.getElementById("chips"),ta=document.getElementById("ta"),sendBtn=document.getElementById("send");
+let history=[],busy=false;
+
+function bubble(role,text){const r=document.createElement("div");r.className="row "+(role==="user"?"user":"bot");const b=document.createElement("div");b.className="bubble";b.innerHTML=text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");r.appendChild(b);msgs.appendChild(r);msgs.scrollTop=msgs.scrollHeight;return b;}
+function color(v){return v>=80?"var(--sage)":v>=55?"var(--amber)":"var(--low)";}
+function card(p,s){const el=document.createElement("div");el.className="card";const bar=(l,v)=>`<div class="bar"><div class="bl">${l}</div><div class="tk"><div class="fl" data-v="${v}" style="background:${color(v)}"></div></div><div class="bv">${v}</div></div>`;
+ el.innerHTML=`<div class="top"><div><div class="nm">${p.brand} · ${p.name}</div><div class="br">${p.cat?p.cat+" · ":""}认证：${(p.certifications||[]).join(" / ")||"无"}</div></div><div class="ov"><div class="n" style="color:${color(s.overall)}">${s.overall}</div><div class="l">综合 / 100</div></div></div><div class="bars">${bar("配方",s.formula)}${bar("质量",s.quality)}${bar("安全",s.safety)}</div>${s.flags.length?`<div class="flags">${s.flags.map(f=>`<span class="flag">${f}</span>`).join("")}</div>`:""}${s.unknown&&s.unknown.length?`<div class="cover">未计入评分：${s.unknown.join("、")}（暂未收录，本次评分仅覆盖 ${s.coverage} 成分）</div>`:""}<div class="meta">确定性引擎 · 通用国际参考基线 · 不分品牌 · 同样输入恒定同样输出</div>`;
+ msgs.appendChild(el);requestAnimationFrame(()=>el.querySelectorAll(".fl").forEach(f=>f.style.width=f.dataset.v+"%"));msgs.scrollTop=msgs.scrollHeight;}
+function typing(on){let t=document.getElementById("typing");if(on){if(t)return;t=document.createElement("div");t.id="typing";t.className="row bot";t.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;}else if(t)t.remove();}
+
+async function callAPI(messages){
+ const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYSTEM,messages})});
+ if(!res.ok)throw new Error("网络错误 "+res.status);
+ const data=await res.json();
+ if(data.error)throw new Error(data.error.message||"API 错误");
+ return data.content.filter(b=>b.type==="text").map(b=>b.text).join("");
+}
+
+async function turn(userText){
+ busy=true;sendBtn.disabled=true;document.getElementById("cam").disabled=true;chips.innerHTML="";
+ history.push({role:"user",content:userText});typing(true);
+ try{
+  let reply=await callAPI(history);
+  const sm=reply.match(/\[\[score:(\{[\s\S]*?\})\]\]/);
+  if(sm){
+   typing(false);let prod;try{prod=JSON.parse(sm[1]);}catch(e){prod=null;}
+   if(prod){
+    const sc=scoreProduct(prod);
+    card({brand:"你的配方",name:prod.name||"自定义产品",cat:"",certifications:prod.certifications||[]},sc);
+    history.push({role:"assistant",content:reply});
+    history.push({role:"user",content:`[引擎已算出"${prod.name||"该配方"}"] 配方${sc.formula} 质量${sc.quality} 安全${sc.safety} 综合${sc.overall}。覆盖${sc.coverage}${sc.unknown.length?"，未收录："+sc.unknown.join("、"):""}。风险：${sc.flags.join("；")||"无"}。请用用户的语言简洁解释，说明为什么这么打；若有未收录成分要诚实说明评分只覆盖了一部分。只用结构功能性表述，不要再输出任何标记。`});
+    typing(true);reply=await callAPI(history);
+   }
+  }
+  typing(false);
+  const cardIds=[...reply.matchAll(/\[\[card:([\w-]+)\]\]/g)].map(m=>m[1]);
+  cardIds.forEach(id=>{const p=CATALOG.find(x=>x.id===id);if(p)card(p,SCORED[id]);});
+  const clean=reply.replace(/\[\[card:[\w-]+\]\]/g,"").replace(/\[\[score:[\s\S]*?\]\]/g,"").trim();
+  if(clean)bubble("bot",clean);
+  history.push({role:"assistant",content:reply});
+ }catch(e){typing(false);bubble("bot","抱歉，刚才没连上。请稍后再试一次。（"+e.message+"）");history.pop();}
+ busy=false;sendBtn.disabled=false;document.getElementById("cam").disabled=false;ta.focus();
+}
+
+function send(){const v=ta.value.trim();if(!v||busy)return;bubble("user",v);ta.value="";ta.style.height="auto";turn(v);}
+sendBtn.onclick=send;
+ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
+ta.addEventListener("input",()=>{ta.style.height="auto";ta.style.height=Math.min(120,ta.scrollHeight)+"px";});
+
+function imageBubble(src){const r=document.createElement("div");r.className="row user";const b=document.createElement("div");b.className="bubble";const im=document.createElement("img");im.src=src;b.appendChild(im);r.appendChild(b);msgs.appendChild(r);msgs.scrollTop=msgs.scrollHeight;}
+function processImage(file){return new Promise((resolve,reject)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);const max=1568;let w=img.width,h=img.height;if(Math.max(w,h)>max){const r=max/Math.max(w,h);w=Math.round(w*r);h=Math.round(h*r);}const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);const d=c.toDataURL("image/jpeg",0.85);resolve({dataUrl:d,base64:d.split(",")[1]});};img.onerror=reject;img.src=url;});}
+async function onPhoto(file){if(busy)return;let im;try{im=await processImage(file);}catch(e){bubble("bot","这张图片读不了，换一张清晰的标签照片再试。");return;}imageBubble(im.dataUrl);turn([{type:"image",source:{type:"base64",media_type:"image/jpeg",data:im.base64}},{type:"text",text:"我拍了这个补剂产品的照片，请识别标签上的成分与剂量并给它打分。"}]);}
+const camBtn=document.getElementById("cam"),fileInput=document.getElementById("file");
+camBtn.onclick=()=>{if(!busy)fileInput.click();};
+fileInput.onchange=e=>{const f=e.target.files[0];if(f)onPhoto(f);e.target.value="";};
+
+const STARTERS=["哪个补铁产品更值得买？","PeakForm 的肌酸打几分？","我在吃左甲状腺素，补铁要注意吗？","评一下我的配方：褪黑素10mg + 镁150mg"];
+function showChips(){chips.innerHTML="";STARTERS.forEach(s=>{const c=document.createElement("button");c.className="chip";c.textContent=s;c.onclick=()=>{if(busy)return;bubble("user",s);turn(s);};chips.appendChild(c);});}
+
+bubble("bot","你好，我是 dietarysupplement.ai 的补剂评测顾问。我面向**全球任何国家**的用户、覆盖**所有品类、所有品牌**，用你的语言回答，用同一把尺子打分——不偏向任何牌子（包括我们自己）。\n\n分数由确定性引擎计算（配方 / 质量 / 安全三维，通用国际基线），可复现、可追问；各国监管和参考值不同，我会按你所在市场提醒差异。没收录的成分我会**如实标出来**。\n\n试试下面，**点左下角相机拍一张产品标签**，或直接贴一个配方。");
+showChips();
+</script>
